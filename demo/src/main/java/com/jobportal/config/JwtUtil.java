@@ -14,26 +14,26 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    // TODO: Move to application.properties and use a stronger secret
     private static final String SECRET_KEY =
-            "jobportal_jwt_secret_key_256bit_secure_value_12345";
+            "your-very-secure-random-base64-encoded-secret-key-minimum-256-bits-long-for-hs256-algorithm";
 
     private static final long EXPIRATION_TIME =
-            1000 * 60 * 60 * 24;
-    
+            1000 * 60 * 60 * 24; // 24 hours
+
     public String generateToken(User user) {
-        
+
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("role", user.getRole().name())
+                .claim("userId", user.getId())
                 .setIssuedAt(new Date())
                 .setExpiration(
                         new Date(System.currentTimeMillis() + EXPIRATION_TIME)
                 )
-                .signWith(getSigningKey(), SignatureAlgorithm.ES256)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // FIXED: Changed from ES256 to HS256
                 .compact();
     }
-
-
 
     public String extractEmail(String token) {
         return getClaims(token).getSubject();
@@ -43,12 +43,24 @@ public class JwtUtil {
         return getClaims(token).get("role", String.class);
     }
 
+    public Long extractUserId(String token) {
+        return getClaims(token).get("userId", Long.class);
+    }
+
     public boolean isTokenValid(String token) {
         try {
-            getClaims(token);
-            return true;
+            Claims claims = getClaims(token);
+            return !claims.getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public boolean isTokenExpired(String token) {
+        try {
+            return getClaims(token).getExpiration().before(new Date());
+        } catch (Exception e) {
+            return true;
         }
     }
 
@@ -56,8 +68,10 @@ public class JwtUtil {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(token).getBody();
+                .parseClaimsJws(token)
+                .getBody();
     }
+
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(
                 SECRET_KEY.getBytes(StandardCharsets.UTF_8)

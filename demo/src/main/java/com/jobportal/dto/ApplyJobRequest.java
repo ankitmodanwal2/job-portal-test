@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class ApplyJobRequest {
     private Long jobId;
-    private Long userId;
+    // REMOVED: userId - will be extracted from JWT token
 }
