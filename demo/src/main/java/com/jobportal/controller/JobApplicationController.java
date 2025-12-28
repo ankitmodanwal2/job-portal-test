@@ -7,6 +7,7 @@ import com.jobportal.response.ApiResponse;
 import com.jobportal.service.JobApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class JobApplicationController {
 
     private final JobApplicationService jobApplicationService;
 
+    @PreAuthorize("hasRole('ROLE_JOB_SEEKER')")
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> apply(@RequestBody ApplyJobRequest request) {
         return ResponseEntity.ok(jobApplicationService.apply(request));

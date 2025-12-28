@@ -7,6 +7,7 @@ import com.jobportal.entity.Job;
 import com.jobportal.entity.JobApplication;
 import com.jobportal.entity.User;
 import com.jobportal.enums.ApplicationStatus;
+import com.jobportal.exception.AccessDeniedException;
 import com.jobportal.exception.ResourceNotFoundException;
 import com.jobportal.repository.JobApplicationRepository;
 import com.jobportal.repository.JobRepository;
